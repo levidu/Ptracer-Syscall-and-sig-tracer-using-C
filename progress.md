@@ -6,10 +6,13 @@ Team 13
 |Levidu Alahakoon|https://github.com/levidu |
 |  Amandeep Singh|https://github.com/amansinghammy |
 
-Description:
+Description
+----------
+#TODO
 
-Task table: 
 
+Task table
+----------
 | Name        | Task assigned | Progress |
 |-------------|------------------|-----------|
 |Levidu        |                         |                |
