@@ -1,7 +1,8 @@
 Team name:
 Team 13
 
-Members: 
+|Members |
+|--------|
 |  Manjusha Vallabhaneni(https://github.com/manjusha1691)|
 |Levidu Alahakoon(https://github.com/levidu) |
 |  Amandeep Singh(https://github.com/amansinghammy |
