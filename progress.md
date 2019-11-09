@@ -8,20 +8,19 @@ Team 13
 
 Task Planner 
 ----------
-- Read past lectures on fork and system calls
-- Read pracer() and stracer()
-
-- One member create pracer()
-- One member create the [-h] [-f file]
-- One member create the process program: command [args] 
+- Read lectures on System calls, signals and threads
+- Read ptrace and strace
+- To create pracer()
+- To create  [-h] [-f file]
+- To create the process program: command [args] 
 
 Description
 ----------
 Common group goals:
-We all need to understand how ptracer() and stracer() work.
+We all need to understand how ptrace and strace  works and implement the ptracer..
 
 Progress report update:
-Now we have an understanding on how ptrace() works.
+All of us individually studied and understood the ptrace ans strace system calls.The next task is to design the whole program and divide it into specific modules for each of to code.
 
 Task table
 ----------
