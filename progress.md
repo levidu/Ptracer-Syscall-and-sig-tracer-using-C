@@ -6,6 +6,15 @@ Team 13
 |Levidu Alahakoon|https://github.com/levidu |
 |  Amandeep Singh|https://github.com/amansinghammy |
 
+Task Planner 
+----------
+- Read past lectures on fork and system calls
+- Read pracer() and stracer()
+
+- One member create pracer()
+- One member create the [-h] [-f file]
+- One member create the process program: command [args] 
+
 Description
 ----------
 Common group goals:
@@ -23,7 +32,4 @@ Task table
 |Amandeep |        Work on how you are going to print the help summary and how you are going to export the result to files.                  |      15%          |
 
 
-Task breakdown:
-1) One member build pracer()
-2) One member build the [-h] [-f file]
-3) One member build the process program: command [args] 
+
