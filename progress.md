@@ -19,11 +19,7 @@ Task table
 | Name        | Task assigned | Progress |
 |-------------|------------------|-----------|
 |Levidu        | Create pracer() and work with Manjusha and Amandeep on how you are going to pass data between each other                        |     10%           |
-
-
 |Manjusha   |          Build a program with forks, your program should incorporate agruments.               |                | 10%
-
-
 |Amandeep |        Work on how you are going to print the help summary and how you are going to export the result to files                  |      15%          |
 
 
