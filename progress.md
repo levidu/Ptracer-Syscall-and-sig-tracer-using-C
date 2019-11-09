@@ -9,10 +9,10 @@ Team 13
 Description
 ----------
 Common group goals:
-We all need to understand how pracer() and stracer() work.
+We all need to understand how ptracer() and stracer() work.
 
 Progress report update:
-Now we can an understanding on how pracer() works.  
+Now we have an understanding on how ptrace() works.
 
 Task table
 ----------
