@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#include <sys/reg.h>
+
 
 int main(int argc, const char * argv[]) {
     long orig_eax;
