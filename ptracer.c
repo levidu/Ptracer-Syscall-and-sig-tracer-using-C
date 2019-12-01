@@ -1,21 +1,4 @@
-/*
-  ptr_inspect.c
 
-  Demonstration code; shows how to trace the system calls in a child
-  process with ptrace.  Only works on 64-bit x86 Linux for now, I'm
-  afraid.  (Even worse, it's only tested on Linux 2.6....) 
- 
-  The callname() function looks clunky and machine-generated because it
-  *is* clunky and machine-generated.
-
-  I got inspiration and a starting point from this old LJ article:
-    http://www.linuxjournal.com/article/6100 
-
-  I release this code to the public domain.  Share and enjoy.
-
-  Will Benton
-  Madison, 2008
-*/
 #include <errno.h>
 #include <sys/ptrace.h>
 #include <sys/types.h>
@@ -28,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 const char* callname(long call);
 
 #if __WORDSIZE == 64
@@ -35,6 +19,7 @@ const char* callname(long call);
 #else
 #define REG(reg) reg.orig_eax
 #endif
+
 
 #define FATAL(...) \
     do { \
@@ -50,30 +35,49 @@ int main(int argc, char* argv[]) {
 
   char* chargs[argc];
   int i = 0;
-  while (i < argc - 1) {
+  int status;
+  while (i < argc) {//arguments to array for execvp command
     chargs[i] = argv[i+1];
+    //printf("%d: %s\n", i, chargs[i]");
     i++;
   }
   chargs[i] = NULL;
-
   pid_t child = fork();
   if(child == 0) {
-    ptrace(PTRACE_TRACEME, 0, 0, 0);
+    ptrace(PTRACE_TRACEME, 0, 0, 0);//Tracing the child
     execvp(chargs[0], chargs);
     return 1;
   }
-    waitpid(child, 0, 0); // sync with PTRACE_TRACEME
-    ptrace(PTRACE_SETOPTIONS, child, 0, PTRACE_O_EXITKILL);
-    for(;;) {
-      struct user_regs_struct regs; 
-      long syscall = regs.orig_rax;
+  waitpid(child,&status,0);//sync with PTRACE_TRACEME 
+  ptrace(PTRACE_SETOPTIONS, child, 0, PTRACE_O_EXITKILL);
+   while(1) {
+      struct user_regs_struct regs;
+      //waitpid(child,&status,0);//sync with PTRACE_TRACEME
+      if(WIFSTOPPED(status) && WSTOPSIG(status)& 0x80){
+       return 0;
+      }
+      //checking whether the child exited normally
+      if(WIFEXITED(status)){
+      	return 1;
+      }
+      //ptrace(PTRACE_SETOPTIONS,child,0,PTRACE_O_EXITKILL);
       ptrace(PTRACE_GETREGS, child, NULL, &regs);
-      fprintf(stderr, "System call %s from pid %d\n", callname(REG(regs)), child);
+      long syscall = REG(regs);
+      //printing arguments for execve
+      if(callname(REG(regs))=="execve"){
+	      
+	//      printf("ready to print for execv\n");
+	   fprintf(stderr,"Systemcall execve from pid %d\n",child);
+	   fprintf(stderr,"Systemcall number: %ld\n", syscall);
+	struct ptrace_get_syscall_info info;
+	
+     }else{
+      fprintf(stderr, "System call %s from pid %d\n", callname(syscall), child);
       fprintf(stderr, "Syscall number: %ld, rdi: %ld, rsi: %ld, rdx: %ld, r10: %ld, r8: %ld, r9: %ld\n",(long) syscall,
                 (long)regs.rdi, (long)regs.rsi, (long)regs.rdx,
                 (long)regs.r10, (long)regs.r8,  (long)regs.r9);
-
-/* Run system call and stop on exit */
+	}
+	/* Run system call and stop on exit */
         if (ptrace(PTRACE_SYSCALL, child, 0, 0) == -1)
             FATAL("%s", strerror(errno));
         if (waitpid(child, 0, 0) == -1)
@@ -86,9 +90,9 @@ int main(int argc, char* argv[]) {
                 exit(regs.rdi); // system call was _exit(2) or similar
             FATAL("%s", strerror(errno));
         }
-fprintf(stderr, "RESULT = %ld\n", (long)regs.rax);
+	fprintf(stderr, "RESULT = %ld\n", (long)regs.rax);
 
-    }
+   }
   
 }
 
