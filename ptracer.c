@@ -4,12 +4,14 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/user.h>
+#include <sys/reg.h>
 
 #include <syscall.h>
 
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 
 
 const char* callname(long call);
@@ -36,6 +38,8 @@ int main(int argc, char* argv[]) {
   char* chargs[argc];
   int i = 0;
   int status;
+  long params[3];
+  long orig_rax, rax;
   while (i < argc) {//arguments to array for execvp command
     chargs[i] = argv[i+1];
     //printf("%d: %s\n", i, chargs[i]");
@@ -63,20 +67,27 @@ int main(int argc, char* argv[]) {
       //ptrace(PTRACE_SETOPTIONS,child,0,PTRACE_O_EXITKILL);
       ptrace(PTRACE_GETREGS, child, NULL, &regs);
       long syscall = REG(regs);
+    
+      
       //printing arguments for execve
-      if(callname(REG(regs))=="execve"){
+     // if(callname(REG(regs))=="execve"){
 	      
 	//      printf("ready to print for execv\n");
 	   fprintf(stderr,"Systemcall execve from pid %d\n",child);
 	   fprintf(stderr,"Systemcall number: %ld\n", syscall);
-	struct ptrace_get_syscall_info info;
+          
+           params[0] = ptrace(PTRACE_PEEKUSER,child,8*RBX,NULL);
+	   params[1]= ptrace(PTRACE_PEEKUSER,child,8*RCX,NULL);
+	   params[2]=ptrace(PTRACE_PEEKUSER,child,8*RDX,NULL);
+	   printf("printing from execvp %ld %ld %ld\n",params[0],params[1],params[2]);
+	   
 	
-     }else{
-      fprintf(stderr, "System call %s from pid %d\n", callname(syscall), child);
-      fprintf(stderr, "Syscall number: %ld, rdi: %ld, rsi: %ld, rdx: %ld, r10: %ld, r8: %ld, r9: %ld\n",(long) syscall,
-                (long)regs.rdi, (long)regs.rsi, (long)regs.rdx,
-                (long)regs.r10, (long)regs.r8,  (long)regs.r9);
-	}
+     //}else{
+     // fprintf(stderr, "System call %s from pid %d\n", callname(syscall), child);
+     // fprintf(stderr, "Syscall number: %ld, rdi: %ld, rsi: %ld, rdx: %ld, r10: %ld, r8: %ld, r9: %ld\n",(long) syscall,
+       //         (long)regs.rdi, (long)regs.rsi, (long)regs.rdx,
+         //       (long)regs.r10, (long)regs.r8,  (long)regs.r9);
+	//}
 	/* Run system call and stop on exit */
         if (ptrace(PTRACE_SYSCALL, child, 0, 0) == -1)
             FATAL("%s", strerror(errno));
