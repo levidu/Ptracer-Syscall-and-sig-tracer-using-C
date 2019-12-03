@@ -58,7 +58,12 @@ int main(int argc, char **argv)
 {
     if (argc <= 1)
         FATAL("too few arguments: %d", argc);
-
+    for(int iter=1;iter<argc;iter++){
+      if(strcmp(argv[iter],"-h")==0){
+	fprintf(stderr,"Help Summary\n");
+	exit(0);
+    }
+    }
     pid_t pid = fork();
     switch (pid) {
         case -1: /* error */
@@ -86,15 +91,10 @@ int main(int argc, char **argv)
             FATAL("%s", strerror(errno));
         long syscall = regs.orig_rax;
 
-        /* Print a representation of the system call */
-        fprintf(stderr, "%ld(%ld, %ld, %ld, %ld, %ld, %ld)",
-                syscall,
-                (long)regs.rdi, (long)regs.rsi, (long)regs.rdx,
-                (long)regs.r10, (long)regs.r8,  (long)regs.r9);
-
-	char * str;
-	long params[3];
 	if(syscall == 1) {
+		//write system call
+		char *str;
+		long params[3];
 		 params[0] = ptrace(PTRACE_PEEKUSER,pid,8*RDI,NULL);
                  params[1] = ptrace(PTRACE_PEEKUSER,pid,8*RSI,NULL);
                  params[2] = ptrace(PTRACE_PEEKUSER,pid,8*RDX,NULL);
@@ -102,9 +102,52 @@ int main(int argc, char **argv)
                     str = (char*)malloc(params[2]+1);
                     memset(str,0,params[2]+1);
                     getdata(pid,params[1],str,params[2]);
-                    printf("\nget values from registers: %s\n",str);
+                    printf("\nwrite(%ld,%s)\n",(long)regs.rdi,str);
                     free(str);
+	}else if(syscall ==0){
+		//read system call
+		char *str_read;
+	        long params_read[3];
+
+             params_read[0]=ptrace(PTRACE_PEEKUSER,pid,8*RDI,NULL);
+	     params_read[1]=ptrace(PTRACE_PEEKUSER,pid,8*RSI,NULL);
+	     params_read[2]=ptrace(PTRACE_PEEKUSER,pid,8*RDX,NULL);
+	    // fprintf(stderr,"debugging RSI address:%ld\n",params_read[1]);
+	    // fprintf(stderr,"debugging RSI from regs:%ld\n",(long)regs.rsi);
+
+	     str_read=(char*)malloc(params_read[2]+1);
+	     memset(str_read,0,params_read[2]+1);
+	     getdata(pid,params_read[1],str_read,params_read[2]);
+	     printf("\nread(%ld, %s)\n",(long)regs.rdi,str_read);
+	     free(str_read);
+	}else if (syscall ==231){
+		//exit_group system call
+         fprintf(stderr,"exit_group(%ld)",(long)regs.rdi);
+	}else if(syscall == 3){
+		//close system call
+	 fprintf(stderr,"close(%ld)",(long)regs.rdi);
+	  //dup system call
+	}else if(syscall==32){
+         fprintf(stderr,"dup %ld",(long)regs.rdi);
+	  //dup2 system call	
+	}else if(syscall==33) {
+            fprintf(stderr,"dup2 %ld %ld",(long)regs.rdi,(long)regs.rsi);
+	   //fstat system call
+	}else if(syscall == 5){
+            struct s{
+	     long rsi_size;
+	     long rsi_mode;
+	     }s1;
+	     s1.rsi_size = ptrace(PTRACE_PEEKDATA,pid,regs.rsi+16,NULL);
+	    s1.rsi_mode = ptrace(PTRACE_PEEKDATA,pid,regs.rsi+24,NULL); 
+            fprintf(stderr,"fstat(%ld, st_size:%ld, st_mode:%ld)\n",(long)regs.rdi,(long)s1.rsi_size,(long)s1.rsi_mode);
 	}
+	
+	else{
+		//Print the registers of unhandled system calls
+	fprintf(stderr,"%ld(%ld, %ld, %ld, %ld %ld %ld)",syscall, (long)regs.rdi,(long)regs.rsi,(long)regs.rdx,(long)regs.r10,(long)regs.r8,(long)regs.r9);
+	}
+
         /* Run system call and stop on exit */
         if (ptrace(PTRACE_SYSCALL, pid, 0, 0) == -1)
             FATAL("%s", strerror(errno));
