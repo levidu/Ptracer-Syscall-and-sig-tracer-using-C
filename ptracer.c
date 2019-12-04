@@ -1,5 +1,5 @@
 #define _POSIX_C_SOURCE 200112L
-
+//
 /* C standard library */
 #include <errno.h>
 #include <stdio.h>
@@ -105,13 +105,16 @@ int main(int argc, char **argv)
             
         }
     }
+    int arg_one = argc;
+    const char * command = argv[arg_one - 2];
+ 
     pid_t pid = fork();
     switch (pid) {
         case -1: /* error */
             FATAL("%s", strerror(errno));
         case 0:  /* child */
             ptrace(PTRACE_TRACEME, 0, 0, 0);
-            execvp(argv[1], argv + 1);
+            execvp(command, argv + 1);
             FATAL("%s", strerror(errno));
     }
 
@@ -137,9 +140,8 @@ int main(int argc, char **argv)
         char *str;
         long params[3];
          params[0] = ptrace(PTRACE_PEEKUSER,pid,8*RDI,NULL);
-                 params[1] = ptrace(PTRACE_PEEKUSER,pid,8*RSI,NULL);
-                 params[2] = ptrace(PTRACE_PEEKUSER,pid,8*RDX,NULL);
-   
+         params[1] = ptrace(PTRACE_PEEKUSER,pid,8*RSI,NULL);
+         params[2] = ptrace(PTRACE_PEEKUSER,pid,8*RDX,NULL);  
                     str = (char*)malloc(params[2]+1);
                     memset(str,0,params[2]+1);
                     getdata(pid,params[1],str,params[2]);
@@ -160,11 +162,10 @@ int main(int argc, char **argv)
          params_read[2]=ptrace(PTRACE_PEEKUSER,pid,8*RDX,NULL);
         // fprintf(stderr,"debugging RSI address:%ld\n",params_read[1]);
         // fprintf(stderr,"debugging RSI from regs:%ld\n",(long)regs.rsi);
-
          str_read=(char*)malloc(params_read[2]+1);
          memset(str_read,0,params_read[2]+1);
          getdata(pid,params_read[1],str_read,params_read[2]);
-         fprintf(stderr,"read(%ld, %s)",(long)regs.rdi,str_read);
+         fprintf(stderr,"read(%ld,%s)",(long)regs.rdi,str_read);
          if(print_to_file) {
              FILE * file_pointer;
              file_pointer = fopen(file_path,"a");
@@ -219,24 +220,25 @@ int main(int argc, char **argv)
             }
     }
     // open syscall
-    //else if(syscall ==2) {
-     //   char *str;
-      //  long params[3];
-        // params[0] = ptrace(PTRACE_PEEKUSER,pid,8*RDI,NULL);
-          //       params[1] = ptrace(PTRACE_PEEKUSER,pid,8*RSI,NULL);
-            //     params[2] = ptrace(PTRACE_PEEKUSER,pid,8*RDX,NULL);
-              //      str = (char*)malloc(params[2]+1);
-                //    memset(str,0,params[2]+1);
-                  //  getdata(pid,params[0],str,params[2]);
-                    //fprintf(strerror,"\nopen(%ld,%ld,%s)\n",(long)regs.rdi,(long)regs.rsi,str);
-                   // if(print_to_file) {
-                    //    FILE * file_pointer;
-                      //  file_pointer = fopen(file_path,"a");
-                        //fprintf(file_pointer,"\nopen(%ld,%ld,%s)\n",(long)regs.rdi,(long)regs.rsi,str);
-                   // }
-                   // free(str);
+    else if(syscall ==2) {
+        char *str;
+        long params[3];
+        params[0] = ptrace(PTRACE_PEEKUSER,pid,8*RDI,NULL);
+        params[1] = ptrace(PTRACE_PEEKUSER,pid,8*RSI,NULL);
+        params[2] = ptrace(PTRACE_PEEKUSER,pid,8*RDX,NULL);
+     
+	str = (char*)malloc(512);
+        memset(str,0,512);
+        getdata(pid,params[0],str,512);
+        fprintf(stderr,"open(%s,%ld,%ld)",str,(long)regs.rsi,(long)regs.rdx);
+        if(print_to_file) {
+        	FILE * file_pointer;
+                file_pointer = fopen(file_path,"a");
+                fprintf(file_pointer,"open(%s,%ld,%ld)",str,(long)regs.rsi,(long)regs.rdx);
+        }
+        free(str);
 
-    //}
+    }
     else{
         //Print the registers of unhandled system calls
     fprintf(stderr,"%ld(%ld, %ld, %ld, %ld %ld %ld)",syscall, (long)regs.rdi,(long)regs.rsi,(long)regs.rdx,(long)regs.r10,(long)regs.r8,(long)regs.r9);
@@ -244,12 +246,14 @@ int main(int argc, char **argv)
         FILE * file_pointer;
         file_pointer = fopen(file_path,"a");
         fprintf(file_pointer,"%ld(%ld, %ld, %ld, %ld %ld %ld)",syscall, (long)regs.rdi,(long)regs.rsi,(long)regs.rdx,(long)regs.r10,(long)regs.r8,(long)regs.r9);
+
+
     }
         
     }
-
-        /* Run system call and stop on exit */
-        if (ptrace(PTRACE_SYSCALL, pid, 0, 0) == -1)            FATAL("%s", strerror(errno));
+	        /* Run system call and stop on exit */
+        if (ptrace(PTRACE_SYSCALL, pid, 0, 0) == -1)
+            FATAL("%s", strerror(errno));
         if (waitpid(pid, 0, 0) == -1)
             FATAL("%s", strerror(errno));
 
