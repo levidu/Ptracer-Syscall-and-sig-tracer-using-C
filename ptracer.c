@@ -55,27 +55,9 @@ void decToHexa(long n)
         printf("%s\n",hexaDeciNum[j]);
 }
 
-char* concat(const char *s1, const char *s2)
-{
-    char *result = malloc(strlen(s1) + strlen(s2) + 1); // +1 for the null-terminator
-    // in real code you would check for errors in malloc here
-    strcpy(result, s1);
-    strcat(result, s2);
-    return result;
-}
 
-const char * file_path ;
-char * content_to_print;
 bool print_to_file = false;
-void file_printer(bool print_to_file, char * content_to_print) {
-    if(print_to_file){
-        FILE * file_pointer;
-        file_pointer = fopen(file_path,"a");
-        fprintf(file_pointer,"%s", content_to_print);
-//        fprintf(file_pointer,"%s", "\n");
-    }
-    
-};
+
 
 const int long_size = sizeof(long);
 void getdata(pid_t pid, long addr,
@@ -110,16 +92,17 @@ int main(int argc, char **argv)
 {
     if (argc <= 1)
         FATAL("too few arguments: %d", argc);
+    int file_path_argv;
+    const char * file_path;
     for(int iter=1;iter<argc;iter++){
       if(strcmp(argv[iter],"-h")==0){
     fprintf(stderr,"Help Summary\n");
     }
         if(strcmp(argv[iter],"-f")==0) {
+            print_to_file = true;
             file_path_argv = iter+1;
             file_path = argv[file_path_argv];
-            print_to_file = true;
-            char* remove_file_cmb = concat("rm ", file_path);
-            system(remove_file_cmb);
+            
         }
     }
     pid_t pid = fork();
@@ -180,7 +163,12 @@ int main(int argc, char **argv)
          free(str_read);
     }else if (syscall ==231){
         //exit_group system call
-         fprintf(stderr,"exit_group(%ld)",(long)regs.rdi);
+         fprintf(stderr,"exit_group(%ld)\n",(long)regs.rdi);
+        if(print_to_file) {
+            FILE * file_pointer;
+            file_pointer = fopen(file_path,"a");
+            fprintf(file_pointer,"exit_group(%ld)\n",(long)regs.rdi);
+        }
     }else if(syscall == 3){
         //close system call
      fprintf(stderr,"close(%ld)",(long)regs.rdi);
