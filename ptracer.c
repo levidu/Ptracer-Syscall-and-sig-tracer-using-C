@@ -96,17 +96,9 @@ int main(int argc, char **argv)
     const char * file_path;
     for(int iter=1;iter<argc;iter++){
       if(strcmp(argv[iter],"-h")==0){
-    fprintf(stderr,"The ptracer program we developed with the command format ptracer [-h] [-f file] command [args]. 
-
-The ptrace (PROCESS SYSTEM CALL), parent process observe and control on other executions with the help of ptrace. 
-
-OPTIONAL 
-The [-h] is an help summary to user, if an user add invalid argument the help summary will print. The [-f file] it’s an representation of file or folder location in computer system.
-The [args] command line arguments, arguments do modification for commands.
-
-MANDATORY 
-Command – is the tracee: For example, this can be a predefined command in linux or other executable programs.\n");
-    }
+printf("%s\n","The ptracer program we developed with the command format ptracer [-h] [-f file] command [args]. The ptrace (PROCESS SYSTEM CALL), parent process observe and control on other executions with the help of ptrace. OPTIONAL: The [-h] is an help summary to user, if an user add invalid argument the help summary will print. The [-f file] it’s an representation of file or folder location in computer system.The [args] command line arguments, arguments do modification for commands.\nMANDATORY Command – is the tracee: For example, this can be a predefined command in linux or other executable programs.");
+return 1;    
+} 
         if(strcmp(argv[iter],"-f")==0) {
             print_to_file = true;
             file_path_argv = iter+1;
@@ -115,7 +107,7 @@ Command – is the tracee: For example, this can be a predefined command in linu
         }
     }
     int arg_one = argc;
-    const char * command = argv[arg_one - 2];
+    const char * command = argv[1];
  
     pid_t pid = fork();
     switch (pid) {
@@ -256,6 +248,15 @@ Command – is the tracee: For example, this can be a predefined command in linu
           fprintf(file_pointer,"pid %ld",(long)getpid());
       }
     }
+    else if (syscall == 8){
+
+       fprintf(stderr,"lseek (%ld %ld %ld)",(long)regs.rdi,(long)regs.rsi,(long)regs.rdx );
+       if(print_to_file){
+           FILE *file_pointer;
+           file_pointer=fopen(file_path,"a");
+           fprintf(file_pointer,"lseek(%ld %ld %ld)",(long)regs.rdi,(long)regs.rsi,(long)regs.rdx);
+       }
+}
     else{
         //Print the registers of unhandled system calls
     fprintf(stderr,"%ld(%ld, %ld, %ld, %ld %ld %ld)",syscall, (long)regs.rdi,(long)regs.rsi,(long)regs.rdx,(long)regs.r10,(long)regs.r8,(long)regs.r9);
