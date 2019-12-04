@@ -24,8 +24,36 @@
         fputc('\n', stderr); \
         exit(EXIT_FAILURE); \
     } while (0)
+void decToHexa(long n)
+{
+    // char array to store hexadecimal number
+    char hexaDeciNum[100];
+    // counter for hexadecimal number array
+    long i = 0;
+    while(n!=0)
+    {
+        // temporary variable to store remainder
+        long temp  = 0;
+        // storing remainder in temp variable.
+        temp = n % 16;
+        // check if temp < 10
+        if(temp < 10)
+        {
+            hexaDeciNum[i] = temp + 48;
+            i++;
+        }
+        else
+        {
+            hexaDeciNum[i] = temp + 55;
+            i++;
+        }
+        n = n/16;
+    }
+    // printing hexadecimal number array in reverse order
+    for(long j=i-1; j>=0; j--)
+        printf("%s\n",hexaDeciNum[j]);
+}
 const int long_size = sizeof(long);
-
 void getdata(pid_t pid, long addr,
              char *str, int len)
 {   char *laddr;
@@ -142,15 +170,27 @@ int main(int argc, char **argv)
 	    s1.rsi_mode = ptrace(PTRACE_PEEKDATA,pid,regs.rsi+24,NULL); 
             fprintf(stderr,"fstat(%ld, st_size:%ld, st_mode:%ld)\n",(long)regs.rdi,(long)s1.rsi_size,(long)s1.rsi_mode);
 	}
-	
+	// open syscall 
+	else if(syscall ==2) {
+		char *str;
+		long params[3];
+		 params[0] = ptrace(PTRACE_PEEKUSER,pid,8*RDI,NULL);
+                 params[1] = ptrace(PTRACE_PEEKUSER,pid,8*RSI,NULL);
+                 params[2] = ptrace(PTRACE_PEEKUSER,pid,8*RDX,NULL);
+                    str = (char*)malloc(params[2]+1);
+                    memset(str,0,params[2]+1);
+                    getdata(pid,params[0],str,params[2]);
+                    printf("\nopen(%ld,%ld,%s)\n",(long)regs.rdi,(long)regs.rsi,str);
+                    free(str);
+
+	}
 	else{
 		//Print the registers of unhandled system calls
 	fprintf(stderr,"%ld(%ld, %ld, %ld, %ld %ld %ld)",syscall, (long)regs.rdi,(long)regs.rsi,(long)regs.rdx,(long)regs.r10,(long)regs.r8,(long)regs.r9);
 	}
 
         /* Run system call and stop on exit */
-        if (ptrace(PTRACE_SYSCALL, pid, 0, 0) == -1)
-            FATAL("%s", strerror(errno));
+        if (ptrace(PTRACE_SYSCALL, pid, 0, 0) == -1)            FATAL("%s", strerror(errno));
         if (waitpid(pid, 0, 0) == -1)
             FATAL("%s", strerror(errno));
 
