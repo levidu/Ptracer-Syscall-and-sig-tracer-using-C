@@ -143,14 +143,19 @@ int main(int argc, char **argv)
                     str = (char*)malloc(params[2]+1);
                     memset(str,0,params[2]+1);
                     getdata(pid,params[1],str,params[2]);
-                    printf("\nwrite(%ld,%s)\n",(long)regs.rdi,str);
+                    fprintf(stderr,"\nwrite(%ld,%s)\n",(long)regs.rdi,str);
+                    if(print_to_file) {
+                        FILE * file_pointer;
+                        file_pointer = fopen(file_path,"a");
+                        fprintf(file_pointer,"\nwrite(%ld,%s)\n",(long)regs.rdi,str);
+                    }
                     free(str);
     }else if(syscall ==0){
         //read system call
         char *str_read;
             long params_read[3];
 
-             params_read[0]=ptrace(PTRACE_PEEKUSER,pid,8*RDI,NULL);
+         params_read[0]=ptrace(PTRACE_PEEKUSER,pid,8*RDI,NULL);
          params_read[1]=ptrace(PTRACE_PEEKUSER,pid,8*RSI,NULL);
          params_read[2]=ptrace(PTRACE_PEEKUSER,pid,8*RDX,NULL);
         // fprintf(stderr,"debugging RSI address:%ld\n",params_read[1]);
@@ -159,11 +164,16 @@ int main(int argc, char **argv)
          str_read=(char*)malloc(params_read[2]+1);
          memset(str_read,0,params_read[2]+1);
          getdata(pid,params_read[1],str_read,params_read[2]);
-         printf("\nread(%ld, %s)\n",(long)regs.rdi,str_read);
+         fprintf(stderr,"\nread(%ld, %s)\n",(long)regs.rdi,str_read);
+         if(print_to_file) {
+             FILE * file_pointer;
+             file_pointer = fopen(file_path,"a");
+             fprintf(file_pointer,"\nread(%ld, %s)\n",(long)regs.rdi,str_read);
+         }
          free(str_read);
     }else if (syscall ==231){
         //exit_group system call
-         fprintf(stderr,"exit_group(%ld)\n",(long)regs.rdi);
+        fprintf(stderr,"exit_group(%ld)\n",(long)regs.rdi);
         if(print_to_file) {
             FILE * file_pointer;
             file_pointer = fopen(file_path,"a");
@@ -172,12 +182,27 @@ int main(int argc, char **argv)
     }else if(syscall == 3){
         //close system call
      fprintf(stderr,"close(%ld)",(long)regs.rdi);
+     if(print_to_file) {
+         FILE * file_pointer;
+         file_pointer = fopen(file_path,"a");
+         fprintf(file_pointer,"close(%ld)",(long)regs.rdi);
+     }
       //dup system call
     }else if(syscall==32){
          fprintf(stderr,"dup %ld",(long)regs.rdi);
+         if(print_to_file) {
+             FILE * file_pointer;
+             file_pointer = fopen(file_path,"a");
+             fprintf(file_pointer,"dup %ld",(long)regs.rdi);
+         }
       //dup2 system call
     }else if(syscall==33) {
             fprintf(stderr,"dup2 %ld %ld",(long)regs.rdi,(long)regs.rsi);
+            if(print_to_file) {
+                FILE * file_pointer;
+                file_pointer = fopen(file_path,"a");
+                fprintf(file_pointer,"dup2 %ld %ld",(long)regs.rdi,(long)regs.rsi);
+            }
        //fstat system call
     }else if(syscall == 5){
             struct s{
@@ -187,6 +212,11 @@ int main(int argc, char **argv)
          s1.rsi_size = ptrace(PTRACE_PEEKDATA,pid,regs.rsi+16,NULL);
         s1.rsi_mode = ptrace(PTRACE_PEEKDATA,pid,regs.rsi+24,NULL);
             fprintf(stderr,"fstat(%ld, st_size:%ld, st_mode:%ld)\n",(long)regs.rdi,(long)s1.rsi_size,(long)s1.rsi_mode);
+            if(print_to_file) {
+                FILE * file_pointer;
+                file_pointer = fopen(file_path,"a");
+                fprintf(file_pointer,"fstat(%ld, st_size:%ld, st_mode:%ld)\n",(long)regs.rdi,(long)s1.rsi_size,(long)s1.rsi_mode);
+            }
     }
     // open syscall
     else if(syscall ==2) {
@@ -198,13 +228,24 @@ int main(int argc, char **argv)
                     str = (char*)malloc(params[2]+1);
                     memset(str,0,params[2]+1);
                     getdata(pid,params[0],str,params[2]);
-                    printf("\nopen(%ld,%ld,%s)\n",(long)regs.rdi,(long)regs.rsi,str);
+                    fprintf(strerror,"\nopen(%ld,%ld,%s)\n",(long)regs.rdi,(long)regs.rsi,str);
+                    if(print_to_file) {
+                        FILE * file_pointer;
+                        file_pointer = fopen(file_path,"a");
+                        fprintf(file_pointer,"\nopen(%ld,%ld,%s)\n",(long)regs.rdi,(long)regs.rsi,str);
+                    }
                     free(str);
 
     }
     else{
         //Print the registers of unhandled system calls
     fprintf(stderr,"%ld(%ld, %ld, %ld, %ld %ld %ld)",syscall, (long)regs.rdi,(long)regs.rsi,(long)regs.rdx,(long)regs.r10,(long)regs.r8,(long)regs.r9);
+    if(print_to_file) {
+        FILE * file_pointer;
+        file_pointer = fopen(file_path,"a");
+        fprintf(file_pointer,"%ld(%ld, %ld, %ld, %ld %ld %ld)",syscall, (long)regs.rdi,(long)regs.rsi,(long)regs.rdx,(long)regs.r10,(long)regs.r8,(long)regs.r9);
+    }
+        
     }
 
         /* Run system call and stop on exit */
