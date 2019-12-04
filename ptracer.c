@@ -239,6 +239,14 @@ int main(int argc, char **argv)
         free(str);
 
     }
+    else if(syscall==39){
+      fprintf(stderr,"pid %ld ",(long)getpid());
+      if(print_to_file){
+          FILE * file_pointer;
+          file_pointer=fopen(file_path,"a");
+          fprintf(file_pointer,"pid %ld",(long)getpid());
+      }
+    }
     else{
         //Print the registers of unhandled system calls
     fprintf(stderr,"%ld(%ld, %ld, %ld, %ld %ld %ld)",syscall, (long)regs.rdi,(long)regs.rsi,(long)regs.rdx,(long)regs.r10,(long)regs.r8,(long)regs.r9);
@@ -274,4 +282,3 @@ int main(int argc, char **argv)
 	}
     }
 }
-
