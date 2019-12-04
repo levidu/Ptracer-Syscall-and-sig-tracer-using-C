@@ -96,7 +96,16 @@ int main(int argc, char **argv)
     const char * file_path;
     for(int iter=1;iter<argc;iter++){
       if(strcmp(argv[iter],"-h")==0){
-    fprintf(stderr,"Help Summary\n");
+    fprintf(stderr,"The ptracer program we developed with the command format ptracer [-h] [-f file] command [args]. 
+
+The ptrace (PROCESS SYSTEM CALL), parent process observe and control on other executions with the help of ptrace. 
+
+OPTIONAL 
+The [-h] is an help summary to user, if an user add invalid argument the help summary will print. The [-f file] it’s an representation of file or folder location in computer system.
+The [args] command line arguments, arguments do modification for commands.
+
+MANDATORY 
+Command – is the tracee: For example, this can be a predefined command in linux or other executable programs.\n");
     }
         if(strcmp(argv[iter],"-f")==0) {
             print_to_file = true;
