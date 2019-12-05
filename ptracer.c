@@ -88,6 +88,8 @@ void getdata(pid_t pid, long addr,
              char *str, int len)
 {   char *laddr;
     int i, j;
+ // we would use union to check out the string and the long value in the same memory space. Then, we can push the char * to the a location
+ // that we would use to print the results.
     union u {
             long val;
             char chars[long_size];
@@ -112,17 +114,20 @@ void getdata(pid_t pid, long addr,
     }
     str[len] = '\0';
 }
+
 int main(int argc, char **argv)
 {
+	// If there are few arguments then call the FATAL defined function
     if (argc <= 1)
         FATAL("too few arguments: %d", argc);
     int file_path_argv;
     const char * file_path;
+	// Printing the -h help summary, if it is there in the argument space argv
     for(int iter=1;iter<argc;iter++){
       if(strcmp(argv[iter],"-h")==0){
 printf("%s\n","The ptracer program we developed with the command format ptracer [-h] [-f file] command [args]. The ptrace (PROCESS SYSTEM CALL), parent process observe and control on other executions with the help of ptrace. OPTIONAL: The [-h] is an help summary to user, if an user add invalid argument the help summary will print. The [-f file] it’s an representation of file or folder location in computer system.The [args] command line arguments, arguments do modification for commands.\nMANDATORY Command – is the tracee: For example, this can be a predefined command in linux or other executable programs.");
 return 1;    
-} 
+} 	// Change the bool val to true, now the program knows to use fprintf to print the results to the assigned file-path in file_path.
         if(strcmp(argv[iter],"-f")==0) {
             print_to_file = true;
             file_path_argv = iter+1;
@@ -131,20 +136,23 @@ return 1;
         }
     }
     int arg_one = argc;
+	// command saves the tracee
     const char * command = argv[1];
- 
     pid_t pid = fork();
     switch (pid) {
         case -1: /* error */
             FATAL("%s", strerror(errno));
         case 0:  /* child */
+		 //PTRACE_TRACEME tells the kernel that the process is being traced, and when the child executes the execve system call, it hands over control to its parent.
             ptrace(PTRACE_TRACEME, 0, 0, 0);
             execvp(command, argv + 1);
             FATAL("%s", strerror(errno));
     }
 
     /* parent */
+    //The parent waits for notification from the kernel with a wait() call
     waitpid(pid, 0, 0); // sync with PTRACE_TRACEME
+    //Set ptrace options from data, a SIGKILL signal will be sent to every tracee if the tracer exits.
     ptrace(PTRACE_SETOPTIONS, pid, 0, PTRACE_O_EXITKILL);
 
     for (;;) {
@@ -162,7 +170,9 @@ return 1;
             FATAL("%s", strerror(errno));
 	// Gathers the syscall number that is in call that would run in the loop.
         long syscall = regs.orig_rax;
-
+    
+	    
+	    /* FROM HERE WE WILL SPECIFIC INSTRUCTIONS FOR EACH SYSCALL TO PEEKDATA using getdata function OR READ REGISTERS */
     if(syscall == 1) {
         //write system call
         char *str;
@@ -180,11 +190,10 @@ return 1;
                         fprintf(file_pointer,"write(%ld,%s)",(long)regs.rdi,str);
                     }
                     free(str);
+	    //read system call
     }else if(syscall ==0){
-        //read system call
         char *str_read;
             long params_read[3];
-
          params_read[0]=ptrace(PTRACE_PEEKUSER,pid,8*RDI,NULL);
          params_read[1]=ptrace(PTRACE_PEEKUSER,pid,8*RSI,NULL);
          params_read[2]=ptrace(PTRACE_PEEKUSER,pid,8*RDX,NULL);
@@ -200,8 +209,8 @@ return 1;
              fprintf(file_pointer,"read(%ld, %s)",(long)regs.rdi,str_read);
          }
          free(str_read);
+	    //exit_group system call
     }else if (syscall ==231){
-        //exit_group system call
         fprintf(stderr,"exit_group(%ld)",(long)regs.rdi);
         if(print_to_file) {
             FILE * file_pointer;
@@ -267,6 +276,7 @@ return 1;
         free(str);
 
     }
+	    //getpid syscall
     else if(syscall==39){
       fprintf(stderr,"pid %ld ",(long)getpid());
       if(print_to_file){
@@ -274,9 +284,8 @@ return 1;
           file_pointer=fopen(file_path,"a");
           fprintf(file_pointer,"pid %ld",(long)getpid());
       }
-    }
+    }	// lseek syscall
     else if (syscall == 8){
-
        fprintf(stderr,"lseek (%ld %ld %ld)",(long)regs.rdi,(long)regs.rsi,(long)regs.rdx );
        if(print_to_file){
            FILE *file_pointer;
