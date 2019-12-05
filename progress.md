@@ -26,9 +26,9 @@ Task table
 ----------
 | Name        | Task assigned | Progress |
 |-------------|------------------|-----------|
-|Levidu        | Create ptracer and implement system calls.                        |     10%           |
-|Manjusha   |        Implement the system calls              |         10%       | 
-|Amandeep |        Work on how you are going to print the help summary and how you are going to export the result to files.                  |      15%          |
+|Levidu        | Create ptracer and implement system calls.                        |     100%           |
+|Manjusha   |        Implement the system calls              |         100%       | 
+|Amandeep |        Work on how you are going to print the help summary and how you are going to export the result to files.                  |      100%          |
 
 
 
