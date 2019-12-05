@@ -14,7 +14,7 @@ Video submission link: https://www.screencast.com/t/HTFdRzfi
 **Important notes to run our ptracer** 
 
 Due to hardships to make the program with the specified format, we used our own format to make the program run with errors. Please use the following command to run our ptracer in project-13: `ptracer` `command` `[args]` `[-h]` `[-f file]` 
-![Screenshot of format that the user should enter](https://www.screencast.com/t/bWlCsm18n0GE)
+![Screenshot of format that the user should enter](https://content.screencast.com/users/Levidu/folders/ICSI402/media/3d34a8a3-9a1b-42e4-b9e5-ff4bcb81fa4c/Screen%20Shot%202019-12-05%20at%206.47.30%20PM.png)
 
 **Expected outcomes of System calls**
 
