@@ -1,5 +1,5 @@
 #define _POSIX_C_SOURCE 200112L
-//
+
 /* C standard library */
 #include <errno.h>
 #include <stdio.h>
@@ -19,12 +19,30 @@
 #include <sys/reg.h>
 #include <stdbool.h>
 
+//  Ptracer starts here	
+/*----------------------------------------------------------------------
+ * MEMBERS: Levidu Alahakoon, Amandeep Singh and Manjusha Vallabhaneni |
+ * CREDIT: Christopher Wellons                                         |
+ *----------------------------------------------------------------------
+ * Sources used: https://nullprogram.com/blog/2018/06/23/ and https://github.com/skeeto/ptrace-examples
+ * We backbone of this project uses the above sources for us to aid this project and we hereby like to give credit to Christopher Wellons.
+ */
+
+// A constant function that uses variable arguements to print errors if the program exited with an exit
 #define FATAL(...) \
     do { \
         fprintf(stderr, "ptracer: " __VA_ARGS__); \
         fputc('\n', stderr); \
         exit(EXIT_FAILURE); \
     } while (0)
+
+/*
+ * Function:  decToHexa(long) 
+ * --------------------------
+ * A function that converts decimals to base 16 hexadecimals, this is essential for use to present
+ * hexacimal values in syscalls like fstat. 
+ *
+ */
 void decToHexa(long n)
 {
     // char array to store hexadecimal number
@@ -55,11 +73,17 @@ void decToHexa(long n)
         printf("%s\n",hexaDeciNum[j]);
 }
 
-
+// A bool var that would check if user has enter -f in one of the arguments
 bool print_to_file = false;
 
-
+// Check the size of long in the Operation System.
 const int long_size = sizeof(long);
+
+/*
+ * Function:  getdata(pid_t, long addr) 
+ * -------------------------------------
+ * getdata function would use PTRACE_PEEKDATA to reads the data that the child passes in arguments to the system call. 
+ */
 void getdata(pid_t pid, long addr,
              char *str, int len)
 {   char *laddr;
@@ -125,6 +149,7 @@ return 1;
 
     for (;;) {
         /* Enter next system call */
+	//PTRACE_SYSCALL, makes the kernel stop the child process whenever a system call entry or exit is made.
         if (ptrace(PTRACE_SYSCALL, pid, 0, 0) == -1)
             FATAL("%s", strerror(errno));
         if (waitpid(pid, 0, 0) == -1)
@@ -132,8 +157,10 @@ return 1;
 
         /* Gather system call arguments */
         struct user_regs_struct regs;
+	// Calling ptrace with a first argument of PTRACE_GETREGS will place all the registers in a single call.
         if (ptrace(PTRACE_GETREGS, pid, 0, &regs) == -1)
             FATAL("%s", strerror(errno));
+	// Gathers the syscall number that is in call that would run in the loop.
         long syscall = regs.orig_rax;
 
     if(syscall == 1) {
