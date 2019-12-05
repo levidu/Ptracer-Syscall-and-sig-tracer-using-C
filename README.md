@@ -12,10 +12,10 @@ Documentation
 Video submission link: https://www.screencast.com/t/HTFdRzfi
 
 **Important notes to run our ptracer** 
-   Due to hardships to make the program with the specified format, we used our own format to make the program run with errors. Please use the following command to run our ptracer in project-13: `ptracer` `command` `[args]` `[-h]` `[-f file]` 
+Due to hardships to make the program with the specified format, we used our own format to make the program run with errors. Please use the following command to run our ptracer in project-13: `ptracer` `command` `[args]` `[-h]` `[-f file]` 
 
 **Expected outcomes of System calls**
-  We have managed to complete 10/15 system calls.
+We have managed to complete 10/15 system calls.
   
 |syscall# |syscall|comment|
 |---------|-------|------|
@@ -34,3 +34,20 @@ Video submission link: https://www.screencast.com/t/HTFdRzfi
 |61|wait4|We failed to retrieve this information|
 |231|exit_group|Managed to gather all the actual values for its arguments|
 
+**Technical difficulties we came across**
+1. We managed to print the result to a file. However, not in a tabulated format.
+2. We failed to convert some regs in long format to hexadecimal. Our `void decToHex(long)` encountered errors.
+3. execve, seems to be the most important system call that we should have stressed on. However, this result was not detected by our ptracer.
+4. The format that was given to us to run ptracer gave us runs. Thus, our program failed to compile. We put the `command` and its arguments: `[args]` right after `./ptracer`. Like the following -> `ptracer` `command` `[args]` `[-h]` `[-f file]`  
+
+**Conclusion and improvements** 
+Quotation marks and spaces were not included or modified as we got the information as it is from the registers. We believe that we could have implemented POKEDATA or a possible method that could have given as a much more similar results like in `strace`. Nevertheless, we successfully manage to retrieve the data in registered and managed to put it in a file that is specified by user arguments.
+
+**Reference**
+https://nullprogram.com/blog/2018/06/23/
+http://blog.rchapman.org/posts/Linux_System_Call_Table_for_x86_64/
+https://www.linuxjournal.com/article/6100
+
+**Credit**
+A source from https://nullprogram.com/blog/2018/06/23/ that was written by Chris Wellons helped us understand how to start this project and basically implement the backbone of ptracer. We thank this source and would hereby like to give credit to the author. It would not have been impossible to get a start if it is not to this source. 
+Thank you! 
