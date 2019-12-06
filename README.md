@@ -28,15 +28,15 @@ We have managed to complete 10/15 system calls.
 |syscall# |syscall|comment|
 |---------|-------|------|
 |0|read|Managed to gather all the actual values for its arguments|
-|1|write|Managed to gather all the actual values for its arguments. However, we also get the stdout result. We assume that we failed to pokedata and retrieve it as an empty string|
+|1|write|Managed to gather all the actual values for its arguments. However, we also get the stdout result. We assume that we failed to `POKEDATA` and retrieve it as an empty string|
 |2|open|Managed to gather all the actual values of its arguments|
 |3|close|Managed to gather all the actual values of its arguments|
-|5|fstat|Managed to gather all the actual values of its arguments. However, failed to retrieve the hexadecimals on some arguments|
+|5|fstat|Managed to gather all the actual values of its arguments. However, failed to retrieve the hexadecimal on some arguments|
 |6|lseek|Managed to gather all the actual values of its arguments|
 |22|pipe|Could not implement the system call|
 |32|dup|Managed to gather all the actual values of its arguments|
 |33|dups|Managed to gather all the actual values of its arguments|
-|39|getpid|We had difficulty on how to retrive the registers for this syscall. Since, all the registers are empty for this syscall|
+|39|getpid|We had difficulty on how to retrieve the registers for this syscall. Since all the registers are empty for this syscall|
 |56|fork|We failed to retrieve this information in some cases|
 |59|execve|In some commits, we managed to get this system call working|
 |61|wait4|We failed to retrieve this information|
@@ -52,7 +52,7 @@ We have managed to complete 10/15 system calls.
 
 **Conclusion and improvements** 
 
-Quotation marks and spaces were not included or modified as we got the information as it is from the registers. We believe that we could have implemented POKEDATA or a possible method that could have given as a much more similar results like in `strace`.
+Quotation marks and spaces were not included or modified as we got the information as it is from the registers. We believe that we could have implemented POKEDATA or a possible method that could have given as much more similar results as in `strace`.
 
 |./ptracer|strace|
 |-|-|
