@@ -48,7 +48,7 @@ We have managed to complete 10/15 system calls.
 2. We failed to convert some regs in long format to hexadecimal. Our `void decToHex(long)` encountered errors.
 3. execve, seems to be the most important system call that we should have stressed on. However, this result was not detected by our ptracer.
 4. The format that was given to us to run ptracer gave us runs. Thus, our program failed to compile. We put the `command` and its arguments: `[args]` right after `./ptracer`. Like the following -> `ptracer` `command` `[args]` `[-h]` `[-f file]`  
-5. We were able to trace signals children and threads. Yet, we could not implement conditions to properly format the result from the registers where we got them and display in stdout.
+5. We were able to trace signals children and threads. Yet, we could not implement conditions to properly format the result from the registers where we got them and display in stdout. Whatever, the calls we have not specified in the condition block, we will display their syscall and registers in long datatype.  
 
 **Conclusion and improvements** 
 
