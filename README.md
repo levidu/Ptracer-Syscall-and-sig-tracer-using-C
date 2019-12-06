@@ -14,10 +14,15 @@ Video submission link: https://www.screencast.com/t/HTFdRzfi
 **Important notes to run our ptracer** 
 
 Due to hardships to make the program with the specified format, we used our own format to make the program run with errors. Please use the following command to run our ptracer in project-13: `ptracer` `command` `[args]` `[-h]` `[-f file]` 
-![Screenshot of format that the user should enter](https://content.screencast.com/users/Levidu/folders/ICSI402/media/3d34a8a3-9a1b-42e4-b9e5-ff4bcb81fa4c/Screen%20Shot%202019-12-05%20at%206.47.30%20PM.png)
+![Screenshot of format that the user should enter](https://content.screencast.com/users/Levidu/folders/ICSI402/media/832b67c7-650a-4a5f-a42e-8618e6c4e9ae/Screen%20Shot%202019-12-05%20at%207.23.42%20PM.png)
 
-**Expected outcomes of System calls**
+**Expected outcomes
 
+1. Help Summary
+We printed the help summary, if there is any insufficient arguments.
+![print summary](https://content.screencast.com/users/Levidu/folders/ICSI402/media/fa7225dd-997e-4d55-81d4-e1b0051ebf85/Screen%20Shot%202019-12-05%20at%207.25.17%20PM.png)
+
+2. System calls
 We have managed to complete 10/15 system calls.
   
 |syscall# |syscall|comment|
@@ -43,10 +48,17 @@ We have managed to complete 10/15 system calls.
 2. We failed to convert some regs in long format to hexadecimal. Our `void decToHex(long)` encountered errors.
 3. execve, seems to be the most important system call that we should have stressed on. However, this result was not detected by our ptracer.
 4. The format that was given to us to run ptracer gave us runs. Thus, our program failed to compile. We put the `command` and its arguments: `[args]` right after `./ptracer`. Like the following -> `ptracer` `command` `[args]` `[-h]` `[-f file]`  
+5. We were able to trace signals children and threads. Yet, we could not implement conditions to properly format the result from the registers where we got them and display in stdout.
 
 **Conclusion and improvements** 
 
-Quotation marks and spaces were not included or modified as we got the information as it is from the registers. We believe that we could have implemented POKEDATA or a possible method that could have given as a much more similar results like in `strace`. Nevertheless, we successfully manage to retrieve the data in registered and managed to put it in a file that is specified by user arguments.
+Quotation marks and spaces were not included or modified as we got the information as it is from the registers. We believe that we could have implemented POKEDATA or a possible method that could have given as a much more similar results like in `strace`.
+
+|./ptracer|strace|
+|-|-|
+|![format error](https://content.screencast.com/users/Levidu/folders/ICSI402/media/896614a7-1ef0-4a5d-bf05-abcb666b4506/Screen%20Shot%202019-12-05%20at%207.27.09%20PM.png)|![strace read result](https://content.screencast.com/users/Levidu/folders/ICSI402/media/6bf45949-6866-4b1e-8206-9b6872aa58b3/Screen%20Shot%202019-12-05%20at%207.55.39%20PM.png)|
+
+Nevertheless, we successfully manage to retrieve the data in registered and write to a file that is specified in by user arguments.
 
 **Reference**
 
