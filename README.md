@@ -16,7 +16,7 @@ Video submission link: https://www.screencast.com/t/HTFdRzfi
 Due to hardships to make the program with the specified format, we used our own format to make the program run with errors. Please use the following command to run our ptracer in project-13: `ptracer` `command` `[args]` `[-h]` `[-f file]` 
 ![Screenshot of format that the user should enter](https://content.screencast.com/users/Levidu/folders/ICSI402/media/832b67c7-650a-4a5f-a42e-8618e6c4e9ae/Screen%20Shot%202019-12-05%20at%207.23.42%20PM.png)
 
-**Expected outcomes
+**Expected outcomes**
 
 1. Help Summary
 We printed the help summary, if there is any insufficient arguments.
